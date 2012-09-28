@@ -55,7 +55,7 @@ $(function(){
 			};
 			
 			y.scale		= d3.scale.linear().range([0, dimensions.graph.height]).domain([0, y.max]);
-			y.scale2		= d3.scale.linear().range([0, dimensions.graph.height]).domain([y.max, 0]);
+			y.scale2	= d3.scale.linear().range([0, dimensions.graph.height]).domain([y.max, 0]);
 			
 			// the x-axis related calculations need be done only when the graph is initialised
 			if(svg.select('g').empty())
@@ -133,13 +133,26 @@ $(function(){
 				}
 				else
 				{
+					if(!options.step_size)
+					{
+						throw 'step_size is a required option for non-date histogram.';
+					}
+					
+					var data_length	= data.group.all().length;
+					
+					//
+					
 					// cannot use all.length because crossfilter data length does not reflect data-gaps
-					var data_length	= x.extent[1]/options.step_size+1;
+					//var data_length	= Math.ceil(x.extent[1]/options.step_size+1);
+					
+					//console.log( data_length, options.step_size );
+					
+					//return;
 					
 					var graph_width	= data_length * dimensions.brush.bar.width
 					
 					// create the upper data boundry
-					x.extent[1]		+= options.step_size;
+					//x.extent[1]		+= options.step_size;
 				
 					x.scale			= d3.scale.linear().domain(x.extent).rangeRound([0, graph_width]);
 				}
@@ -320,12 +333,12 @@ $(function(){
 			
 			if(name != 'histogram-b')
 			{
-				graph('histogram-b', {group: data.b_group, dimension: data.b}, {margin: [20, 10]});
+				graph('histogram-b', {group: data.b_group, dimension: data.b}, {margin: [20, 10], step_size: 100});
 			}
 			
 			if(name != 'histogram-c')
 			{
-				graph('histogram-c', {group: data.c_group, dimension: data.c}, {margin: [20, 10]});
+				graph('histogram-c', {group: data.c_group, dimension: data.c}, {margin: [20, 10], step_size: 100});
 			}
 		};
 		
