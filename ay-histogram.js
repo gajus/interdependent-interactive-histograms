@@ -1,4 +1,4 @@
-/**
+/** 
  * param	string	name	Unique (per-DOM) name for the graph.
  * param	object	data	{group: (crossfilter group), dimension: (crossfilter dimension)}
  * param	object	options	{ (required) margin: [(int), (int)], (required for d3.linear.scale) bin_width: (int), (optional) axis_format: (function)}
@@ -32,7 +32,7 @@ var ay_histogram	= function(name, data, options)
 	
 	var all		= data.group.all();
 	
-	var brush		=
+	var brush	=
 	{
 		events:
 		{
@@ -40,9 +40,11 @@ var ay_histogram	= function(name, data, options)
 			{
 				var extent 		= brush.d3.extent();
 				
+				// round the brush movement to the bin width
 				var scale		= extent.map(x.scale).map(function(d){ return Math.ceil(d/dimensions.brush.bar.width)*dimensions.brush.bar.width; });
 				
-				var extent		= [x.scale.invert(scale[0]), x.scale.invert(scale[1])];
+				// for whatever reason the x.scale.invert sometimes returns number such as [400, 700.0000000000001], thus the .map(Math.floor)
+				var extent		= scale.map(x.scale.invert).map(Math.floor);
 				
 				if(scale[0] == scale[1])
 				{
@@ -53,15 +55,24 @@ var ay_histogram	= function(name, data, options)
 					data.dimension.filterRange(extent);
 				}
 				
+				// limit the brush movement to the bin width
 				brush.g.call(brush.d3.extent(extent));
 				
+				// adjust the clipping mask to the brush tool
 				clippath_brush
 					.attr('x', scale[0])
 					.attr('width', scale[1]-scale[0]);
 				
-				for(var i = 0, j = relations.length; i < j; i++)
+				if(relations)
 				{
-					relations[i].render();
+					clippath_brush
+						.attr('x', scale[0])
+						.attr('width', scale[1]-scale[0]);
+					
+					for(var i = 0, j = relations.length; i < j; i++)
+					{
+						relations[i].render();
+					}
 				}
 			}
 		},
@@ -133,7 +144,7 @@ var ay_histogram	= function(name, data, options)
 	var graph			= svg
 		.append('g')
 			.attr('class', 'gragh')
-			.attr('clip-path', 'url("#clippath-graph-' + name + '")')
+			.attr('clip-path', 'url("#ay-clippath-graph-' + name + '")')
 			.attr('transform', 'translate(' + options.margin.join(',') + ')');
 	
 	var foreground	= graph
@@ -154,7 +165,7 @@ var ay_histogram	= function(name, data, options)
 	var background	= graph
 		.append('g')
 			.attr('class', 'background')
-			.attr('clip-path', 'url("#clippath-brush-' + name + '")');
+			.attr('clip-path', 'url("#ay-clippath-brush-' + name + '")');
 			
 	background
 		.selectAll('rect')
@@ -177,7 +188,7 @@ var ay_histogram	= function(name, data, options)
 	
 	// brush
 	var clippath_brush	= svg.append('clipPath')
-		.attr('id', 'clippath-brush-' + name)
+		.attr('id', 'ay-clippath-brush-' + name)
 			.append('rect')
 			.attr('height', dimensions.graph.height);
 	
@@ -206,54 +217,60 @@ var ay_histogram	= function(name, data, options)
 	// scrollbar
 	if(dimensions.graph.width/graph_width < 1)
 	{
+		var drag	=
+		{
+			event: 	d3.behavior.drag().on('drag', function(){
+				var scrollbar_x		= parseInt(scrollbar.attr('x'));
+				var move_x			= scrollbar_x+d3.event.dx;
+				
+				drag.logic(move_x);
+			}),
+			logic: function(move_x)
+			{
+				// if overscrllod to the left, stick to left-most position
+				if(move_x < 0)
+				{
+					move_x	= 0;
+				}
+				// if overscrllod to the right, stick to right-most position
+				else if(move_x + scrollbar_width > dimensions.graph.width)
+				{
+					move_x	= dimensions.graph.width-scrollbar_width;
+				}
+				
+				var x	= Math.floor(move_x*(graph_width/dimensions.graph.width));
+				
+				graph.attr('transform', 'translate(' + (-1*x+options.margin[0]) + ',' + options.margin[1] + ')');
+				
+				clippath_graph.attr('transform', 'translate(' + (x-(allow_overflow/2)) + ',0)');
+				
+				scrollbar.attr('x', move_x);
+			}
+		};
+	
 		
-		var scrollbar_width		= Math.floor((dimensions.graph.width/graph_width)*dimensions.graph.width);
+		var scrollbar_width		= Math.floor((dimensions.graph.width/graph_width)*dimensions.graph.width);		
 		
-		
+		// the number of pixels to allow overflow on both sides (2*options.margin[0] is max)
+		var allow_overflow		= 2*options.margin[0];
 		
 		var clippath_graph		= svg.append('clipPath')
-			.attr('id', 'clippath-graph-' + name)
+			.attr('id', 'ay-clippath-graph-' + name)
 				.append('rect')
-					.attr('width', dimensions.graph.width)
+					.attr('width', dimensions.graph.width+allow_overflow)
 					.attr('height', dimensions.graph.height+dimensions.axis.x.height);
 		
-		
-		
-		
-		var drag			= d3.behavior.drag().on('drag', function(){
-			var scrollbar_x		= parseInt(d3.select(this).attr('x'));
-			var scrollbar_width	= parseInt(d3.select(this).attr('width'));
-			var move_x			= scrollbar_x+d3.event.dx;
-			
-			if(move_x < 0 || move_x + scrollbar_width > dimensions.graph.width)
-			{
-				return;
-			}
-			
-			var x	= Math.floor(move_x*(graph_width/dimensions.graph.width));
-			
-			graph.attr('transform', 'translate(' + (-1*x+options.margin[0]) + ',' + options.margin[1] + ')');
-			
-			clippath_graph.attr('transform', 'translate(' + (x) + ',0)');
-			
-			d3.select(this).attr('x', move_x);						
-		});
 		
 		var scrollbar			= svg.append('rect')
 			.attr('class', 'scrollbar')
 			.attr('width', scrollbar_width)
 			.attr('height', dimensions.scrollbar.height)
 			.attr('transform', 'translate(' + options.margin[0] + ',' + (dimensions.graph.height+options.margin[1]+dimensions.scrollbar.height+dimensions.axis.x.height) + ')')
-			.attr('x', dimensions.graph.width-scrollbar_width)
+			.attr('x', 0)
 			.attr('y', 0)
-			.call(drag);
+			.call(drag.event);
 		
-		// initial graph offset
-		var offset	= graph_width-dimensions.graph.width+1;
-		
-		clippath_graph.attr('transform', 'translate(' + (offset) + ',0)');
-		
-		graph.attr('transform', 'translate(' + (-1*offset+options.margin[0]) + ',' + options.margin[1] + ')');
+		drag.logic(dimensions.graph.width);
 	}
 	
 	var render	= function()
@@ -263,13 +280,22 @@ var ay_histogram	= function(name, data, options)
 			max: d3.max(all, function(e){ return e.value; })
 		};
 		
-		y.scale		= d3.scale.linear().range([0, dimensions.graph.height]).domain([0, y.max]);
-		y.scale2	= d3.scale.linear().range([0, dimensions.graph.height]).domain([y.max, 0]);
+		y.scale			= d3.scale.linear().range([0, dimensions.graph.height]).domain([0, y.max]);
+		y.scale_invert	= d3.scale.linear().range([0, dimensions.graph.height]).domain([y.max, 0]);
 	
 		y.axis	= d3.svg.axis()
 					.tickPadding(5)
 					.tickSize(5)
-					.scale(y.scale2)
+					.scale(y.scale_invert)
+					// @see http://stackoverflow.com/questions/12643591/how-to-limit-d3-svg-axis-to-integer-labels/12643613#12643613
+					.tickFormat(function(e){
+						if(Math.floor(e) != e)
+						{
+							return;
+						}
+						
+						return e;
+					})
 					.orient('right');
 					
 		y_axis.call(y.axis);
@@ -301,50 +327,3 @@ var ay_histogram	= function(name, data, options)
 		render: render
 	};
 };
-
-var get_random_data	= function()
-{
-	var data	= [];
-		
-	var getRandomInt	= function(min, max)
-	{
-	  return Math.floor(Math.random() * (max - min + 1)) + min;
-	}
-	
-	for(var i = 0; i < 1000; i++)
-	{
-		data.push({
-			date: new Date(2012, getRandomInt(8,9), getRandomInt(1,30)),
-			a: getRandomInt(-99,9999),
-			b: getRandomInt(-9999,9999)
-		});
-	}
-	
-	return data;
-}
-
-$(function(){	
-	var data		=
-	{
-		crossfilter: crossfilter(get_random_data())
-	};
-	
-	
-	
-	data.a			= data.crossfilter.dimension(function(d){ return d.a; });
-	data.a_group	= data.a.group(function(d){ return Math.floor(d / 100)*100; });
-	
-	data.b			= data.crossfilter.dimension(function(d){ return d.b; });
-	data.b_group	= data.b.group(function(d){ return Math.floor(d / 100)*100; });
-	
-	data.c			= data.crossfilter.dimension(function(d){ return d3.time.day(d.date); });
-	data.c_group	= data.c.group();
-	
-	var a	= ay_histogram('histogram-a', {group: data.a_group, dimension: data.a}, {margin: [20, 10], bin_width: 100});
-	var b	= ay_histogram('histogram-b', {group: data.b_group, dimension: data.b}, {margin: [20, 10], bin_width: 100});
-	var c	= ay_histogram('histogram-c', {group: data.c_group, dimension: data.c}, {margin: [20, 10], bin_width: 100});
-	
-	a.addRelations([b,c]);
-	b.addRelations([a,c]);
-	c.addRelations([a,b]);
-});

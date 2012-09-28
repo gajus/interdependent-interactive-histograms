@@ -6,6 +6,53 @@
 	<script type="text/javascript" src="d3.v2.js"></script>
 	<script type="text/javascript" src="ay-histogram.js"></script>
 	
+	<script type="text/javascript">
+	var get_random_data	= function()
+	{
+		var data	= [];
+			
+		var getRandomInt	= function(min, max)
+		{
+		  return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+		
+		for(var i = 0; i < 1000; i++)
+		{
+			data.push({
+				date: new Date(2012, getRandomInt(8,9), getRandomInt(1,30)),
+				a: getRandomInt(0,4999),
+				b: getRandomInt(0,4999)
+			});
+		}
+		
+		return data;
+	}
+	
+	$(function(){	
+		var data		=
+		{
+			crossfilter: crossfilter(get_random_data())
+		};
+		
+		data.a			= data.crossfilter.dimension(function(d){ return d.a; });
+		data.a_group	= data.a.group(function(d){ return Math.floor(d / 100)*100; });
+		
+		data.b			= data.crossfilter.dimension(function(d){ return d.b; });
+		data.b_group	= data.b.group(function(d){ return Math.floor(d / 100)*100; });
+		
+		data.c			= data.crossfilter.dimension(function(d){ return d3.time.day(d.date); });
+		data.c_group	= data.c.group();
+		
+		var a	= ay_histogram('histogram-a', {group: data.a_group, dimension: data.a}, {margin: [10, 10], bin_width: 100});
+		var b	= ay_histogram('histogram-b', {group: data.b_group, dimension: data.b}, {margin: [10, 10], bin_width: 100});
+		var c	= ay_histogram('histogram-c', {group: data.c_group, dimension: data.c}, {margin: [10, 10], bin_width: 100});
+		
+		a.addRelations([b,c]);
+		b.addRelations([a,c]);
+		c.addRelations([a,b]);
+	});
+	</script>
+	
 	<style>
 	html, body { margin: 0; padding: 0; font: 12px/20px monospace; }
 	
@@ -13,7 +60,7 @@
 	
 	.graph-wrapper { overflow: hidden; margin: 20px; background: #f00; }
 	
-	svg { background: #efefef; float: left; }
+	svg { float: left; height: 200px; }
 	
 	g.background rect,
 	g.foreground rect { fill: #4581b3; stroke: none; shape-rendering: crispEdges; }
@@ -34,21 +81,36 @@
 	
 	rect.scrollbar { fill: #fefefe; stroke: #666; stroke-width: 1px; shape-rendering: crispEdges; }
 	g.axis { pointer-events: none; }
+	
+	.graph-container { overflow: hidden; margin: 20px; }
+	
+	.column-a,
+	.column-b,
+	.column-c { background: #eee; padding: 20px; box-sizing: border-box; }
+	
+	.column-a { float: left; width: 33%; margin-right: 20px; }
+	.column-c { float: right; width: 33%; margin-left: 20px; }
+	
+	.column-b { margin: 0 20px; overflow: hidden; }
+	
 	</style>
 </head>
-<body>
-	<div class="graph-wrapper">
-		<svg class="histogram-a" height="200"></svg>
-	</div>
-	<div class="graph-wrapper">
-		<svg class="histogram-b" height="200"></svg>
-	</div>
-	<div class="graph-wrapper">
-		<svg class="histogram-c" height="200"></svg>
+<body>	
+	<div class="graph-container">
+		<div class="column-a">
+			<svg class="histogram-a"></svg>
+		</div>
+		<div class="column-c">
+			<svg class="histogram-c"></svg>
+		</div>
+		<div class="column-b">
+			<svg class="histogram-b"></svg>
+		</div>
 	</div>
 	
+	
 	<div class="authorship">
-		This is a demo of the <a href="https://github.com/anuary/ay-histogram" target="_blank">histogram plugin</a>. This script utilises the <a href="http://d3js.org/" target="_blank">d3.js</a> and <a href="http://square.github.com/crossfilter/" target="_blank">Crossfilter</a> libraries. This script has been developed by <a href="http://anuary.com/gajus" target="_blank">Gajus Kuizinas</a>.
+		This is a demo of the <a href="https://github.com/anuary/ay-histogram" target="_blank">histogram plugin</a>. This script has been developed by <a href="http://anuary.com/gajus" target="_blank">Gajus Kuizinas</a>.
 	</div>
 </body>
 </html>
