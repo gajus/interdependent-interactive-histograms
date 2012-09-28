@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="jquery-1.8.2.min.js"></script>
+	<script type="text/javascript" src="crossfilter.v1.js"></script>
+	<script type="text/javascript" src="d3.v2.js"></script>
+	<script type="text/javascript" src="ay-histogram.js"></script>
+	
+	<style>
+	html, body { margin: 0; padding: 0; font: 12px/20px monospace; }
+	
+	.authorship { margin: 20px; }
+	
+	.graph-wrapper { overflow: hidden; margin: 20px; background: #f00; }
+	
+	svg { background: #efefef; float: left; }
+	
+	g.background rect,
+	g.foreground rect { fill: #4581b3; stroke: none; shape-rendering: crispEdges; }
+	
+	g.foreground rect { fill: #ccc; }
+	
+	g.axis line,
+	g.axis path { fill: none; stroke: #000; stroke-width: 1px; shape-rendering: crispEdges; }
+	
+	g.brush rect.extent { fill: steelblue; fill-opacity: .125; }
+	
+	g.brush .resize path { fill: #eee; stroke: #666; }
+	
+	.delays,
+	.distances { margin-left: 20px; }
+	
+	.clippath-graph-dates rect { fill: #f00; }
+	
+	rect.scrollbar { fill: #fefefe; stroke: #666; stroke-width: 1px; shape-rendering: crispEdges; }
+	g.axis { pointer-events: none; }
+	</style>
+</head>
+<body>
+	<div class="graph-wrapper">
+		<svg class="histogram-a" height="200"></svg>
+	</div>
+	<div class="graph-wrapper">
+		<svg class="histogram-b" height="200"></svg>
+	</div>
+	<div class="graph-wrapper">
+		<svg class="histogram-c" height="200"></svg>
+	</div>
+	
+	<div class="authorship">
+		This is a demo of the <a href="https://github.com/anuary/d3js-crossfilter" target="_blank">d3.js crossfilter plugin</a>. This script utilises the <a href="http://d3js.org/" target="_blank">d3.js</a> and <a href="http://square.github.com/crossfilter/" target="_blank">Crossfilter</a> libraries. This script has been developed by <a href="http://anuary.com/gajus" target="_blank">Gajus Kuizinas</a>.
+	</div>
+</body>
+</html>
