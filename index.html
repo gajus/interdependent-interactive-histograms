@@ -16,41 +16,57 @@
 		  return Math.floor(Math.random() * (max - min + 1)) + min;
 		}
 		
-		for(var i = 0; i < 1000; i++)
+		for(var i = 0; i < 10000; i++)
 		{
 			data.push({
 				id: i,
-				date: new Date(2012, getRandomInt(8,9), getRandomInt(1,30)),
+				date_wide: new Date(2012, getRandomInt(5,9), getRandomInt(1,30), getRandomInt(0,23)),
+				date_narrow: new Date(2012, getRandomInt(8,9), getRandomInt(1,30), getRandomInt(0,23)),
 				a: getRandomInt(0,4999),
-				b: getRandomInt(0,4999)
+				b: getRandomInt(0,49999)
 			});
 		}
 		
 		return data;
 	}
 	
-	$(function(){	
-		var data		=
+	$(function(){
+		var filter	= crossfilter(get_random_data());
+	
+		var data	=
 		{
-			crossfilter: crossfilter(get_random_data())
+			date_wide:
+			{
+				dimension: filter.dimension(function(d){ return d.date_wide; })
+			},
+			date_narrow:
+			{
+				dimension: filter.dimension(function(d){ return d.date_narrow; })
+			},
+			a:
+			{
+				dimension: filter.dimension(function(d){ return d.a; })
+			},
+			b:
+			{
+				dimension: filter.dimension(function(d){ return d.b; })
+			}
 		};
 		
-		data.a			= data.crossfilter.dimension(function(d){ return d.a; });
-		data.a_group	= data.a.group(function(d){ return Math.floor(d / 100)*100; });
+		data.date_wide.group	= data.date_wide.dimension.group(function(d){ return d3.time.day(d); });
+		data.date_narrow.group	= data.date_narrow.dimension.group(function(d){ return d3.time.hour(d); });
+		data.a.group			= data.a.dimension.group(function(d){ return Math.floor(d / 100)*100; });
+		data.b.group			= data.b.dimension.group(function(d){ return Math.floor(d / 1000)*1000; });
+			
+		var date_wide	= ay_histogram('histogram-date-wide', data.date_wide, {margin: [10, 10]});
+		var date_narrow	= ay_histogram('histogram-date-narrow', data.date_narrow, {margin: [10, 10], bin_width: 3600*1000});
+		var a			= ay_histogram('histogram-a', data.a, {margin: [10, 10], bin_width: 100});
+		var b			= ay_histogram('histogram-b', data.b, {margin: [10, 10], bin_width: 1000});
 		
-		data.b			= data.crossfilter.dimension(function(d){ return d.b; });
-		data.b_group	= data.b.group(function(d){ return Math.floor(d / 100)*100; });
-		
-		data.c			= data.crossfilter.dimension(function(d){ return d3.time.day(d.date); });
-		data.c_group	= data.c.group();
-		
-		var a	= ay_histogram('histogram-a', {group: data.a_group, dimension: data.a}, {margin: [10, 10], bin_width: 100});
-		var b	= ay_histogram('histogram-b', {group: data.b_group, dimension: data.b}, {margin: [10, 10], bin_width: 100});
-		var c	= ay_histogram('histogram-c', {group: data.c_group, dimension: data.c}, {margin: [10, 10]});
-		
-		a.setRelations([b,c]);
-		b.setRelations([a,c]);
-		c.setRelations([a,b]);
+		date_wide.setRelations([date_narrow,a,b]);
+		date_narrow.setRelations([date_wide,a,b]);
+		a.setRelations([date_wide,date_narrow,b]);
+		b.setRelations([date_wide,date_narrow,a]);
 	});
 	</script>
 	
@@ -85,23 +101,29 @@
 	
 	.graph-container { overflow: hidden; margin: 20px; }
 	
+	.column,
 	.column-a,
 	.column-b,
-	.column-c { background: #eee; padding: 20px; box-sizing: border-box; }
+	.column-c { background: #eee; padding: 10px; box-sizing: border-box; overflow: hidden; }
 	
 	.column-a { float: left; width: 33%; margin-right: 20px; }
 	.column-c { float: right; width: 33%; margin-left: 20px; }
 	
-	.column-b { margin: 0 20px; overflow: hidden; }
+	.column-b { margin: 0 20px; }
 	</style>
 </head>
-<body>	
+<body>
+	<div class="graph-container">
+		<div class="column">
+			<svg class="histogram-date-wide"></svg>
+		</div>
+	</div>
 	<div class="graph-container">
 		<div class="column-a">
-			<svg class="histogram-a"></svg>
+			<svg class="histogram-date-narrow"></svg>
 		</div>
 		<div class="column-c">
-			<svg class="histogram-c"></svg>
+			<svg class="histogram-a"></svg>
 		</div>
 		<div class="column-b">
 			<svg class="histogram-b"></svg>

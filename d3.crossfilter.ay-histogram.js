@@ -228,31 +228,39 @@ var ay_histogram	= function(name, data, options)
 				
 				drag.logic(move_x);
 			}),
+			// param	int	move_x The present scrollbar handle X value.
 			logic: function(move_x)
 			{
+				var max_offset	= graph_width-dimensions.graph.width;
+				var move_width	= dimensions.graph.width-scrollbar_width;
+				
 				// if overscrllod to the left, stick to left-most position
 				if(move_x < 0)
 				{
 					move_x	= 0;
 				}
 				// if overscrllod to the right, stick to right-most position
-				else if(move_x + scrollbar_width > dimensions.graph.width)
+				else if(move_x > move_width)
 				{
-					move_x	= dimensions.graph.width-scrollbar_width;
+					move_x	= move_width;
 				}
 				
-				var x	= Math.floor(move_x*(graph_width/dimensions.graph.width));
+				var x		= (move_x/move_width)*max_offset;
+				
+				scrollbar.attr('x', move_x);
 				
 				graph.attr('transform', 'translate(' + (-1*x+options.margin[0]) + ',' + options.margin[1] + ')');
 				
-				clippath_graph.attr('transform', 'translate(' + (x-(allow_overflow/2)) + ',0)');
-				
-				scrollbar.attr('x', move_x);
+				clippath_graph.attr('transform', 'translate(' + (x-(allow_overflow/2)) + ',0)');				
 			}
-		};
-	
+		};		
 		
-		var scrollbar_width		= Math.floor((dimensions.graph.width/graph_width)*dimensions.graph.width);		
+		var scrollbar_width		= Math.floor((dimensions.graph.width/graph_width)*dimensions.graph.width);
+		
+		if(scrollbar_width < 50)
+		{
+			scrollbar_width		= 50;
+		}
 		
 		// the number of pixels to allow overflow on both sides (2*options.margin[0] is max)
 		var allow_overflow		= 2*options.margin[0];
