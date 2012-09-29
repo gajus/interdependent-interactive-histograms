@@ -1,7 +1,7 @@
 /** 
  * param	string	name	Unique (per-DOM) name for the graph.
  * param	object	data	{group: (crossfilter group), dimension: (crossfilter dimension)}
- * param	object	options	{ (required) margin: [(int), (int)], (required for d3.linear.scale) bin_width: (int), (optional) axis_format: (function)}
+ * param	object	options	{ (required) margin: [(int), (int)], (required for d3.linear.scale; defauls to day-length otherwise) bin_width: (int), (optional) x_axis_format: (function)}
  */
 var ay_histogram	= function(name, data, options)
 {
@@ -38,13 +38,13 @@ var ay_histogram	= function(name, data, options)
 		{
 			brush: function()
 			{
-				var extent 		= brush.d3.extent();
+				var extent 	= brush.d3.extent();
 				
 				// round the brush movement to the bin width
-				var scale		= extent.map(x.scale).map(function(d){ return Math.ceil(d/dimensions.brush.bar.width)*dimensions.brush.bar.width; });
+				var scale	= extent.map(x.scale).map(function(d){ return Math.ceil(d/dimensions.brush.bar.width)*dimensions.brush.bar.width; });
 				
 				// for whatever reason the x.scale.invert sometimes returns number such as [400, 700.0000000000001], thus the .map(Math.floor)
-				var extent		= scale.map(x.scale.invert).map(Math.floor);
+				var extent	= scale.map(x.scale.invert).map(Math.floor);
 				
 				if(scale[0] == scale[1])
 				{
@@ -63,12 +63,9 @@ var ay_histogram	= function(name, data, options)
 					.attr('x', scale[0])
 					.attr('width', scale[1]-scale[0]);
 				
+				// update any histograms that share the same crossfilter
 				if(relations)
 				{
-					clippath_brush
-						.attr('x', scale[0])
-						.attr('width', scale[1]-scale[0]);
-					
 					for(var i = 0, j = relations.length; i < j; i++)
 					{
 						relations[i].render();
@@ -77,7 +74,7 @@ var ay_histogram	= function(name, data, options)
 			}
 		},
 		// A helper method to generate the handle-bars for the brush tool.
-		// @author Mike Bostock
+		// This is a slightly modified version taken out of the Mike Bostock (http://square.github.com/crossfilter/) code.
 		resize_path: function(d)
 		{
 			var e = +(d == "e"),
@@ -104,24 +101,30 @@ var ay_histogram	= function(name, data, options)
 	};
 	
 	// This is used to automatically differentiate between time scale
-	// and other kind of quantitative groups.
+	// and the quantitative scale. Note that this version will die in agony
+	// if your time scale is bin size is not equal to one day.
 	if(typeof all[0].key === 'object')
 	{
-		// cannot use all.length because crossfilter data length does not reflect data-gaps
-		var days		= Math.round((x.extent[1].getTime()-x.extent[0].getTime())/ (1000*60*60*24));
+		if(!options.bin_width)
+		{
+			options.bin_width	= 1000*3600*24; // defaults to one day in miliseconds
+		}
+	
+		// cannot use all.length because crossfilter data length does not reflect date-gaps
+		var bins			= Math.round((x.extent[1].getTime()-x.extent[0].getTime())/options.bin_width);
 		
-		var graph_width	= (days+1) * dimensions.brush.bar.width
+		var graph_width		= (bins+1) * dimensions.brush.bar.width
 		
 		// create the upper data boundry
-		x.extent[1]		= new Date(x.extent[1].getTime() + 24*60*60*1000);
+		x.extent[1]			= new Date(x.extent[1].getTime() + options.bin_width);
 	
-		x.scale			= d3.time.scale().domain(x.extent).rangeRound([0, graph_width]);	
+		x.scale				= d3.time.scale().domain(x.extent).rangeRound([0, graph_width]);	
 	}
 	else
 	{
 		if(!options.bin_width)
 		{
-			throw 'bin_width is a required option for non-date histogram.';
+			throw 'bin_width is a required option for non-timescale histogram.';
 		}
 		
 		var upper_boundry	= x.extent[1]+options.bin_width;
@@ -131,13 +134,13 @@ var ay_histogram	= function(name, data, options)
 	}
 	
 	x.axis	= d3.svg.axis()
-			.tickPadding(5)
-			.tickSize(5)
-			.scale(x.scale);
+		.tickPadding(5)
+		.tickSize(5)
+		.scale(x.scale);
 	
-	if(typeof options != 'undefined' && options.axis_format)
+	if(typeof options != 'undefined' && options.x_axis_format)
 	{
-		x.axis.tickFormat(options.axis_format);
+		x.axis.tickFormat(options.x_axis_format);
 	}
 	
 	// graph
@@ -287,15 +290,7 @@ var ay_histogram	= function(name, data, options)
 					.tickPadding(5)
 					.tickSize(5)
 					.scale(y.scale_invert)
-					// @see http://stackoverflow.com/questions/12643591/how-to-limit-d3-svg-axis-to-integer-labels/12643613#12643613
-					.tickFormat(function(e){
-						if(Math.floor(e) != e)
-						{
-							return;
-						}
-						
-						return e;
-					})
+					.tickFormat(d3.format('d'))
 					.orient('right');
 					
 		y_axis.call(y.axis);
@@ -313,9 +308,10 @@ var ay_histogram	= function(name, data, options)
 					.attr('height', function(d){ return y.scale(d.value); });
 	};
 	
+	// stores reference to the histograms that use the same crossfilter
 	var relations;
 	
-	var add_relations	= function(histogram_objects_array)
+	var set_relations	= function(histogram_objects_array)
 	{
 		relations	= histogram_objects_array;
 	}
@@ -323,7 +319,7 @@ var ay_histogram	= function(name, data, options)
 	render();
 	
 	return {
-		addRelations: add_relations,
+		setRelations: set_relations,
 		render: render
 	};
 };

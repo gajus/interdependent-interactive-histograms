@@ -4,7 +4,7 @@
 	<script type="text/javascript" src="jquery-1.8.2.min.js"></script>
 	<script type="text/javascript" src="crossfilter.v1.js"></script>
 	<script type="text/javascript" src="d3.v2.js"></script>
-	<script type="text/javascript" src="ay-histogram.js"></script>
+	<script type="text/javascript" src="d3.crossfilter.ay-histogram.js"></script>
 	
 	<script type="text/javascript">
 	var get_random_data	= function()
@@ -19,6 +19,7 @@
 		for(var i = 0; i < 1000; i++)
 		{
 			data.push({
+				id: i,
 				date: new Date(2012, getRandomInt(8,9), getRandomInt(1,30)),
 				a: getRandomInt(0,4999),
 				b: getRandomInt(0,4999)
@@ -45,11 +46,11 @@
 		
 		var a	= ay_histogram('histogram-a', {group: data.a_group, dimension: data.a}, {margin: [10, 10], bin_width: 100});
 		var b	= ay_histogram('histogram-b', {group: data.b_group, dimension: data.b}, {margin: [10, 10], bin_width: 100});
-		var c	= ay_histogram('histogram-c', {group: data.c_group, dimension: data.c}, {margin: [10, 10], bin_width: 100});
+		var c	= ay_histogram('histogram-c', {group: data.c_group, dimension: data.c}, {margin: [10, 10]});
 		
-		a.addRelations([b,c]);
-		b.addRelations([a,c]);
-		c.addRelations([a,b]);
+		a.setRelations([b,c,d]);
+		b.setRelations([a,c,d]);
+		c.setRelations([a,b,d]);
 	});
 	</script>
 	
@@ -93,6 +94,11 @@
 	
 	.column-b { margin: 0 20px; overflow: hidden; }
 	
+	table { padding: 0; table-layout: fixed; border-collapse: collapse; width: 100%; }
+	table th,
+	table td { border: 1px solid #E3E3E3; padding: 5px; font-weight: normal; text-align: left; }
+	table th.number { width: 200px; }
+	table tbody tr { background: #F3F3F3; }
 	</style>
 </head>
 <body>	
@@ -107,7 +113,6 @@
 			<svg class="histogram-b"></svg>
 		</div>
 	</div>
-	
 	
 	<div class="authorship">
 		This is a demo of the <a href="https://github.com/anuary/ay-histogram" target="_blank">histogram plugin</a>. This script has been developed by <a href="http://anuary.com/gajus" target="_blank">Gajus Kuizinas</a>.
