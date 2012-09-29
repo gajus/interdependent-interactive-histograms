@@ -136,6 +136,7 @@ var ay_histogram	= function(name, data, options)
 	x.axis	= d3.svg.axis()
 		.tickPadding(5)
 		.tickSize(5)
+		.ticks( Math.floor(graph_width/50) ) // place a tick roughly every 50px
 		.scale(x.scale);
 	
 	if(typeof options != 'undefined' && options.x_axis_format)
