@@ -48,9 +48,9 @@
 		var b	= ay_histogram('histogram-b', {group: data.b_group, dimension: data.b}, {margin: [10, 10], bin_width: 100});
 		var c	= ay_histogram('histogram-c', {group: data.c_group, dimension: data.c}, {margin: [10, 10]});
 		
-		a.setRelations([b,c,d]);
-		b.setRelations([a,c,d]);
-		c.setRelations([a,b,d]);
+		a.setRelations([b,c]);
+		b.setRelations([a,c]);
+		c.setRelations([a,b]);
 	});
 	</script>
 	
