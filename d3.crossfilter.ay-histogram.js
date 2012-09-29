@@ -68,7 +68,18 @@ var ay_histogram	= function(name, data, options)
 				{
 					for(var i = 0, j = relations.length; i < j; i++)
 					{
-						relations[i].render();
+						relations[i].render(0);
+					}
+				}
+			},
+			brushend: function()
+			{
+				// update any histograms that share the same crossfilter
+				if(relations)
+				{
+					for(var i = 0, j = relations.length; i < j; i++)
+					{
+						relations[i].render(1);
 					}
 				}
 			}
@@ -133,10 +144,16 @@ var ay_histogram	= function(name, data, options)
 		x.scale				= d3.scale.linear().domain([x.extent[0], upper_boundry]).rangeRound([0, graph_width]);
 	}
 	
+	// place a tick roughly every #px
+	if(!options.tick_width)
+	{
+		options.tick_width	= 50;
+	}
+	
 	x.axis	= d3.svg.axis()
 		.tickPadding(5)
 		.tickSize(5)
-		.ticks( Math.floor(graph_width/50) ) // place a tick roughly every 50px
+		.ticks( Math.floor(graph_width/options.tick_width) )
 		.scale(x.scale);
 	
 	if(typeof options != 'undefined' && options.x_axis_format)
@@ -198,7 +215,8 @@ var ay_histogram	= function(name, data, options)
 	
 	brush.d3	= d3.svg.brush()
 		.x(x.scale)
-		.on('brush', brush.events.brush)
+			.on('brush', brush.events.brush)
+			.on('brushend', brush.events.brushend)
 	
 	brush.g	= graph
 		.append('g')
@@ -285,7 +303,7 @@ var ay_histogram	= function(name, data, options)
 		drag.logic(dimensions.graph.width);
 	}
 	
-	var render	= function()
+	var render	= function(stage)
 	{
 		var y		=
 		{
@@ -325,7 +343,7 @@ var ay_histogram	= function(name, data, options)
 		relations	= histogram_objects_array;
 	}
 	
-	render();
+	render(1);
 	
 	return {
 		setRelations: set_relations,
