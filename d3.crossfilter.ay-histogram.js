@@ -4,7 +4,7 @@
  *
  * This function utilises d3.js (http://d3js.org/) and Crossfilter (http://square.github.com/crossfilter/)
  * to create interdependent, interactive histograms. The beauty of the code comes from the flexibility of
- * the input data. The crossfilter can have an arbitrary number of groups, or any size.
+ * the input data. The crossfilter can have an arbitrary number of groups, of any size.
  *
  * Licensed under the BSD.
  * https://github.com/anuary/ay-histogram/blob/master/LICENSE
