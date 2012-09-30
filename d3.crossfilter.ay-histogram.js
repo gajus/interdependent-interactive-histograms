@@ -1,7 +1,24 @@
-/** 
- * param	string	name	Unique (per-DOM) name for the graph.
- * param	object	data	{group: (crossfilter group), dimension: (crossfilter dimension)}
- * param	object	options	{ (required) margin: [(int), (int)], (required for d3.linear.scale; defauls to day-length otherwise) bin_width: (int), (optional) x_axis_format: (function)}
+/**
+ * Histogram v0.0.1
+ * https://github.com/anuary/ay-histogram
+ *
+ * This function utilises d3.js (http://d3js.org/) and Crossfilter (http://square.github.com/crossfilter/)
+ * to create interdependent, interactive histograms. The beauty of the code comes from the flexibility of
+ * the input data. The crossfilter can have an arbitrary number of groups, or any size.
+ *
+ * Licensed under the BSD.
+ * https://github.com/anuary/ay-histogram/blob/master/LICENSE
+ *
+ * Author: Gajus Kuizinas <g.kuizinas@anuary.com>
+ * 
+ * param	string	name	Unique name of the SVG.
+ * param	object	data	{group: [crossfilter group], dimension: [crossfilter dimension]}
+ * param	object	options	{
+ *								margin: [(int) vertical, (int) horizontal], // required
+ *								bin_width: (int), // required for d3.linear.scale; defauls to day-length otherwise.
+ *							  	x_axis_format: (function) // optional. The horizontal axis tick format
+ *							  	tick_width: (int) // optional. The distance between each label on the horizontal axis.
+ *							}
  */
 var ay_histogram	= function(name, data, options)
 {
