@@ -58,15 +58,15 @@
 		data.a.group			= data.a.dimension.group(function(d){ return Math.floor(d / 100)*100; });
 		data.b.group			= data.b.dimension.group(function(d){ return Math.floor(d / 1000)*1000; });
 			
-		var date_wide	= ay_histogram('histogram-date-wide', data.date_wide, {margin: [10, 10]});
-		var date_narrow	= ay_histogram('histogram-date-narrow', data.date_narrow, {margin: [10, 10], bin_width: 3600*1000});
+		//var date_wide	= ay_histogram('histogram-date-wide', data.date_wide, {margin: [10, 10]});
+		//var date_narrow	= ay_histogram('histogram-date-narrow', data.date_narrow, {margin: [10, 10], bin_width: 3600*1000});
 		var a			= ay_histogram('histogram-a', data.a, {margin: [10, 10], bin_width: 100});
-		var b			= ay_histogram('histogram-b', data.b, {margin: [10, 10], bin_width: 1000});
+		//var b			= ay_histogram('histogram-b', data.b, {margin: [10, 10], bin_width: 1000});
 		
-		date_wide.setRelations([date_narrow,a,b]);
-		date_narrow.setRelations([date_wide,a,b]);
-		a.setRelations([date_wide,date_narrow,b]);
-		b.setRelations([date_wide,date_narrow,a]);
+		//date_wide.setRelations([date_narrow,a,b]);
+		//date_narrow.setRelations([date_wide,a,b]);
+		//a.setRelations([date_wide,date_narrow,b]);
+		//b.setRelations([date_wide,date_narrow,a]);
 	});
 	</script>
 	
@@ -77,7 +77,11 @@
 	
 	.graph-wrapper { overflow: hidden; margin: 20px; background: #f00; }
 	
+	svg { background: #f00; width: 100%; }
+	
 	svg { float: left; height: 200px; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+	
+	
 	
 	g.background rect,
 	g.foreground rect { fill: #4581b3; stroke: none; shape-rendering: crispEdges; }
@@ -85,7 +89,7 @@
 	g.foreground rect { fill: #ccc; }
 	
 	g.axis line,
-	g.axis path { fill: none; stroke: #000; stroke-width: 1px; shape-rendering: crispEdges; }
+	g.axis path { fill: none; stroke: #000; stroke-width: 1px; shape-rendering: crispEdges; stroke-linecap: butt; stroke-linejoin: miter; }
 	
 	g.brush rect.extent { fill: steelblue; fill-opacity: .125; }
 	
