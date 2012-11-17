@@ -2,6 +2,8 @@
 
 This is a helper function that utilises [d3.js](http://d3js.org/) and [Crossfilter](http://square.github.com/crossfilter/) to create interdependent interactive histograms ([demonstration](https://dev.anuary.com/703dff31-b9be-543f-b6c6-61ae7fb4dd32/)). The beauty of the code comes from the flexibility of the input data and addaptability to the environment. The crossfilter object can have an arbitrary number of groups, of any size. The graph will automatically adapt to the container width and height and introduce a horizontal scrollbar if such is needed. 
 
+![screenshot](https://raw.github.com/gajus/interdependent-interactive-histograms/master/screenshot.png)
+
 ## Usage
 
 To begin with, I encourage you to explore the [demonstration](https://dev.anuary.com/703dff31-b9be-543f-b6c6-61ae7fb4dd32/) source code. http://xhprof.io is a [real-life example](https://dev.anuary.com/8d50658e-f8e0-5832-9e82-6b9e8aa940ac/?ay[template]=requests) utilising the code. The available function parameters are documented in the code. Defining the Crossfilter `dimension` and `group` is enough to populate the graph with data. Nevertheless, you need to familirize with the [Crossfilter API](https://github.com/square/crossfilter/wiki/API-Reference). 
