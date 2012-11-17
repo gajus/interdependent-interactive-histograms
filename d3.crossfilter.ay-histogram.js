@@ -46,7 +46,7 @@ var ay_histogram	= function(name, data, options)
 	dimensions.graph	=
 	{
 		width: parseInt($svg.width()-options.margin[0]*2),
-		height: parseInt($svg.height()-options.margin[1]*2-dimensions.axis.x.height)
+		height: parseInt($svg.height()-options.margin[1]*2-dimensions.axis.x.height)-1
 	};
 	
 	var all		= data.group.all();

@@ -58,15 +58,15 @@
 		data.a.group			= data.a.dimension.group(function(d){ return Math.floor(d / 100)*100; });
 		data.b.group			= data.b.dimension.group(function(d){ return Math.floor(d / 1000)*1000; });
 			
-		//var date_wide	= ay_histogram('histogram-date-wide', data.date_wide, {margin: [10, 10]});
-		//var date_narrow	= ay_histogram('histogram-date-narrow', data.date_narrow, {margin: [10, 10], bin_width: 3600*1000});
+		var date_wide	= ay_histogram('histogram-date-wide', data.date_wide, {margin: [10, 10]});
+		var date_narrow	= ay_histogram('histogram-date-narrow', data.date_narrow, {margin: [10, 10], bin_width: 3600*1000});
 		var a			= ay_histogram('histogram-a', data.a, {margin: [10, 10], bin_width: 100});
-		//var b			= ay_histogram('histogram-b', data.b, {margin: [10, 10], bin_width: 1000});
+		var b			= ay_histogram('histogram-b', data.b, {margin: [10, 10], bin_width: 1000});
 		
-		//date_wide.setRelations([date_narrow,a,b]);
-		//date_narrow.setRelations([date_wide,a,b]);
-		//a.setRelations([date_wide,date_narrow,b]);
-		//b.setRelations([date_wide,date_narrow,a]);
+		date_wide.setRelations([date_narrow,a,b]);
+		date_narrow.setRelations([date_wide,a,b]);
+		a.setRelations([date_wide,date_narrow,b]);
+		b.setRelations([date_wide,date_narrow,a]);
 	});
 	</script>
 	
@@ -75,11 +75,9 @@
 	
 	.authorship { margin: 20px; }
 	
-	.graph-wrapper { overflow: hidden; margin: 20px; background: #f00; }
+	.graph-wrapper { overflow: hidden; margin: 20px; }
 	
-	svg { background: #f00; width: 100%; }
-	
-	svg { float: left; height: 200px; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+	svg { float: left; width: 100%; height: 200px; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
 	
 	
 	
