@@ -27,8 +27,6 @@ var ay_histogram	= function(name, data, options)
 	var svg		= d3
 		.select('svg.' + name);
 	
-	var $svg	= $(svg[0][0]);
-	
 	var dimensions	=
 	{
 		brush:
@@ -42,11 +40,10 @@ var ay_histogram	= function(name, data, options)
 		}
 	};
 	
-	// Must rely on jQuery because getBoundingClientRect doesn't return dimension values in FireFox.
 	dimensions.graph	=
 	{
-		width: parseInt($svg.width()-options.margin[0]*2),
-		height: parseInt($svg.height()-options.margin[1]*2-dimensions.axis.x.height)-1
+		width: parseInt((svg[0][0].clientWidth || svg[0][0].parentNode.clientWidth)-options.margin[0]*2),
+		height: parseInt((svg[0][0].clientHeight || svg[0][0].parentNode.clientHeight)-options.margin[1]*2-dimensions.axis.x.height)-1
 	};
 	
 	var all		= data.group.all();
@@ -155,8 +152,6 @@ var ay_histogram	= function(name, data, options)
 		
 		var upper_boundry			= x.extent[1]+options.bin_width;
 		var optimized_graph_width	= ((upper_boundry-x.extent[0])/options.bin_width)*dimensions.brush.bar.width;
-		
-		console.log((upper_boundry-x.extent[0])/options.bin_width, dimensions.brush.bar.width);
 		
 		x.scale				= d3.scale.linear().domain([x.extent[0], upper_boundry]).rangeRound([0, optimized_graph_width]);
 	}
