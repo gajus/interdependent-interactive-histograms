@@ -1,13 +1,13 @@
 /**
  * Histogram v0.0.1
- * https://github.com/anuary/ay-histogram
+ * https://github.com/gajus/interdependent-interactive-histograms
  *
  * This function utilises d3.js (http://d3js.org/) and Crossfilter (http://square.github.com/crossfilter/)
  * to create interdependent, interactive histograms. The beauty of the code comes from the flexibility of
  * the input data. The crossfilter can have an arbitrary number of groups, of any size.
  *
  * Licensed under the BSD.
- * https://github.com/anuary/ay-histogram/blob/master/LICENSE
+ * https://github.com/gajus/interdependent-interactive-histograms/blob/master/LICENSE
  *
  * Author: Gajus Kuizinas <g.kuizinas@anuary.com>
  * 
