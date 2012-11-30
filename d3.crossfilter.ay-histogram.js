@@ -1,5 +1,5 @@
 /**
- * Histogram v0.0.1
+ * Histogram v0.0.2
  * https://github.com/gajus/interdependent-interactive-histograms
  *
  * This function utilises d3.js (http://d3js.org/) and Crossfilter (http://square.github.com/crossfilter/)
